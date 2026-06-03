@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOULRADE - Artista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #181821; --bg2: #0e0e1a; --card: #12121e;
+            --border: #2e2e40; --purple: #8c52ff; --pink: #e757ff;
+            --text: #ffffff; --muted: #aaaaaa; --header: #06060c;
+        }
+        [data-theme="light"] {
+            --bg: #f0eef7; --bg2: #faf8ff; --card: #ffffff;
+            --border: #d4c5f7; --text: #1a0a3d; --muted: #6b5a8a; --header: #0b0615;
+        }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; padding-top: 65px; margin: 0; }
+
+        /* ── HEADER ── */
+        header { background: var(--header); padding: 0.85rem 1.5rem; width: 100%; position: fixed; top: 0; z-index: 1000; box-shadow: 0 6px 8px rgba(0,0,0,0.5); box-sizing: border-box; }
+        nav { display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+        .logo { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo-texto { font-family: "MedievalSharp", cursive; font-size: 26px; background: linear-gradient(90deg, #e757ff, #8c52ff); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+        .nav-search { flex: 1; max-width: 420px; }
+        .nav-search input { width: 100%; height: 34px; padding: 0 12px; border-radius: 8px; border: 2px solid var(--border); background: var(--bg2); color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.3s; box-sizing: border-box; }
+        .nav-search input:focus { border-color: var(--purple); }
+        .nav-back { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.82rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; white-space: nowrap; }
+        .nav-back:hover { color: var(--pink); border-color: var(--pink); }
+
+        /* ── LOADING ── */
+        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 1rem; }
+        .spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--muted); font-size: 0.9rem; }
+
+        /* ── HERO ── */
+        .artist-hero { position: relative; min-height: 400px; display: flex; align-items: flex-end; overflow: hidden; }
+        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center top; filter: blur(20px) brightness(0.3); transform: scale(1.1); }
+        .hero-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, var(--bg) 100%); }
+        .hero-content { position: relative; z-index: 2; display: flex; align-items: flex-end; gap: 2rem; padding: 3rem 2rem 2rem; width: 100%; box-sizing: border-box; }
+        .artist-avatar { width: 170px; height: 170px; border-radius: 14px; object-fit: cover; border: 3px solid var(--purple); box-shadow: 0 0 40px rgba(140,82,255,0.5); flex-shrink: 0; }
+        .artist-avatar-placeholder { width: 170px; height: 170px; border-radius: 14px; background: linear-gradient(135deg, var(--purple), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 4rem; flex-shrink: 0; border: 3px solid var(--purple); }
+        .hero-info { flex: 1; min-width: 0; }
+        .artist-type { font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--purple); margin: 0 0 0.25rem; }
+        .artist-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 7vw, 5rem); line-height: 1; margin: 0 0 0.6rem; color: var(--text); }
+        .artist-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+        .tag { font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.75rem; border-radius: 20px; background: rgba(140,82,255,0.15); border: 1px solid rgba(140,82,255,0.35); color: var(--purple); text-transform: uppercase; letter-spacing: 0.5px; }
+        .artist-stats { display: flex; gap: 2.5rem; margin-bottom: 0.75rem; }
+        .stat { text-align: left; }
+        .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--pink); line-height: 1; }
+        .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .hero-meta { font-size: 0.82rem; color: var(--muted); }
+
+        /* ── SECCIONES ── */
+        .section { padding: 2rem 2rem 1rem; max-width: 1200px; margin: 0 auto; box-sizing: border-box; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; color: var(--text); margin: 0; }
+        .section-title span { color: var(--purple); }
+        .section-divider { height: 1px; background: var(--border); max-width: 1156px; margin: 0.5rem auto; }
+
+        /* ── SCROLL ROW ── */
+        .scroll-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.75rem; scrollbar-width: thin; scrollbar-color: var(--purple) transparent; }
+        .scroll-row::-webkit-scrollbar { height: 4px; }
+        .scroll-row::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 2px; }
+
+        /* ── CARD TRACK ── */
+        .track-card { flex-shrink: 0; width: 155px; cursor: pointer; transition: transform 0.2s; }
+        .track-card:hover { transform: translateY(-5px); }
+        .track-img { width: 155px; height: 155px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); display: block; }
+        .track-img-placeholder { width: 155px; height: 155px; border-radius: 10px; background: linear-gradient(135deg, rgba(140,82,255,0.25), rgba(231,87,255,0.15)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .track-name { font-size: 0.82rem; font-weight: 600; margin-top: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .track-meta { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+
+        /* ── CARD ALBUM ── */
+        .album-card { flex-shrink: 0; width: 150px; cursor: pointer; transition: transform 0.2s; }
+        .album-card:hover { transform: translateY(-5px); }
+        .album-img { width: 150px; height: 150px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); display: block; }
+        .album-img-placeholder { width: 150px; height: 150px; border-radius: 10px; background: linear-gradient(135deg, var(--bg2), var(--card)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .album-name { font-size: 0.82rem; font-weight: 600; margin-top: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .album-year { font-size: 0.72rem; color: var(--muted); }
+
+        /* ── CARD SIMILAR ── */
+        .similar-card { flex-shrink: 0; width: 125px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .similar-card:hover { transform: translateY(-5px); }
+        .similar-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); margin: 0 auto; display: block; transition: border-color 0.2s; }
+        .similar-card:hover .similar-img { border-color: var(--purple); }
+        .similar-img-placeholder { width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--pink)); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto; border: 2px solid var(--border); }
+        .similar-name { font-size: 0.78rem; font-weight: 600; margin-top: 0.5rem; color: var(--text); }
+
+        /* ── BIO ── */
+        .bio-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; max-width: 1156px; margin: 0 auto 1rem; }
+        .bio-text { font-size: 0.88rem; line-height: 1.8; color: var(--muted); max-height: 120px; overflow: hidden; transition: max-height 0.4s ease; }
+        .bio-text.expanded { max-height: 2000px; }
+        .bio-toggle { background: transparent; border: none; color: var(--purple); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.5rem 0 0; transition: color 0.2s; display: block; }
+        .bio-toggle:hover { color: var(--pink); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .hero-content { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 2rem 1rem 1.5rem; }
+            .artist-avatar, .artist-avatar-placeholder { width: 120px; height: 120px; }
+            .artist-name { font-size: 2.5rem; }
+            .section { padding: 1.5rem 1rem 1rem; }
+            .artist-stats { gap: 1.5rem; }
+            nav { gap: 0.75rem; }
+            .logo-texto { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.html" class="logo">
+            <span class="logo-texto">SOULRADE</span>
+        </a>
+        <div class="nav-search">
+            <input type="search" id="navSearch" placeholder="Buscar artista...">
+        </div>
+        <a href="index.html" class="nav-back">← Inicio</a>
+    </nav>
+</header>
+
+<main id="mainContent">
+    <div class="loading-screen">
+        <div class="spinner"></div>
+        <p class="loading-text">Cargando...</p>
+    </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  SOULRADE — artista.html
+//  Last.fm    → bio, stats, tags, top tracks, artistas similares
+//  MusicBrainz → discografía (álbumes)
+//  Cover Art Archive → imágenes de álbumes
+//  TheAudioDB  → foto del artista y artistas similares
+// ═══════════════════════════════════════════════════════════
+
+const LASTFM_KEY = "575c583beb1193710327f12896a85ad5";
+const LASTFM_BASE = "https://ws.audioscrobbler.com/2.0/";
+const MB_BASE = "https://musicbrainz.org/ws/2/";
+const MB_HEADERS = { headers: { "User-Agent": "Soulrade/1.0 (soulrade@email.com)" } };
+const AUDIODB_BASE = "https://www.theaudiodb.com/api/v1/json/2/";
+
+// ── Last.fm ──────────────────────────────────────────────────
+async function lastfm(params) {
+    const url = new URL(LASTFM_BASE);
+    Object.entries({ ...params, api_key: LASTFM_KEY, format: "json" })
+          .forEach(([k, v]) => url.searchParams.set(k, v));
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Last.fm ${r.status}`);
+    return r.json();
+}
+
+async function getArtistInfo(name) {
+    return lastfm({ method: "artist.getinfo", artist: name, autocorrect: 1 });
+}
+async function getTopTracks(name, limit = 10) {
+    return lastfm({ method: "artist.gettoptracks", artist: name, limit, autocorrect: 1 });
+}
+async function getSimilarArtists(name, limit = 8) {
+    return lastfm({ method: "artist.getsimilar", artist: name, limit, autocorrect: 1 });
+}
+async function searchArtists(query, limit = 6) {
+    return lastfm({ method: "artist.search", artist: query, limit });
+}
+
+// ── TheAudioDB — foto del artista ────────────────────────────
+async function getArtistImage(name) {
+    try {
+        const r = await fetch(`${AUDIODB_BASE}search.php?s=${encodeURIComponent(name)}`);
+        const d = await r.json();
+        const a = d?.artists?.[0];
+        if (!a) return { thumb: null, fanart: null };
+        return {
+            thumb:  a.strArtistThumb  || null,
+            fanart: a.strArtistFanart || a.strArtistFanart2 || null,
+            banner: a.strArtistBanner || null
+        };
+    } catch { return { thumb: null, fanart: null, banner: null }; }
+}
+
+// Imagen de artista similar desde TheAudioDB
+async function getSimilarImage(name) {
+    try {
+        const r = await fetch(`${AUDIODB_BASE}search.php?s=${encodeURIComponent(name)}`);
+        const d = await r.json();
+        return d?.artists?.[0]?.strArtistThumb || null;
+    } catch { return null; }
+}
+
+// ── MusicBrainz — álbumes ────────────────────────────────────
+async function getAlbums(mbid) {
+    if (!mbid) return [];
+    try {
+        const r = await fetch(
+            `${MB_BASE}release-group?artist=${mbid}&type=album&limit=20&fmt=json`,
+            MB_HEADERS
+        );
+        if (!r.ok) return [];
+        const d = await r.json();
+        return d["release-groups"] || [];
+    } catch { return []; }
+}
+
+// ── Cover Art Archive — imagen de álbum ──────────────────────
+async function getAlbumCover(mbid) {
+    try {
+        const r = await fetch(`https://coverartarchive.org/release-group/${mbid}`, {
+            headers: { "User-Agent": "Soulrade/1.0" }
+        });
+        if (!r.ok) return null;
+        const d = await r.json();
+        const front = d.images?.find(i => i.front) || d.images?.[0];
+        return front?.thumbnails?.large || front?.image || null;
+    } catch { return null; }
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function formatNum(n) {
+    const num = parseInt(n);
+    if (!num) return "0";
+    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+    if (num >= 1_000)     return Math.round(num / 1_000) + "K";
+    return num.toString();
+}
+
+function cleanBio(bio) {
+    if (!bio) return "";
+    return bio
+        .replace(/<a [^>]+>.*?<\/a>/gi, "")
+        .replace(/\s*Read more on Last\.fm\.?/gi, "")
+        .replace(/<[^>]+>/g, "")
+        .trim();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
+function renderArtist(lfmArtist, tracks, similar, albums, images) {
+    const name      = lfmArtist.name;
+    const tags      = lfmArtist.tags?.tag?.slice(0, 5) || [];
+    const listeners = formatNum(lfmArtist.stats?.listeners);
+    const playcount = formatNum(lfmArtist.stats?.playcount);
+    const bio       = cleanBio(lfmArtist.bio?.content || "");
+    const bioShort  = cleanBio(lfmArtist.bio?.summary || "");
+    const thumb     = images.thumb;
+    const fanart    = images.fanart || images.banner || thumb;
+
+    // ── Hero ──
+    const heroHTML = `
+        <div class="artist-hero">
+            ${fanart ? `<div class="hero-bg" style="background-image:url('${fanart}')"></div>` : ""}
+            <div class="hero-gradient"></div>
+            <div class="hero-content">
+                ${thumb
+                    ? `<img src="${thumb}" class="artist-avatar" alt="${name}" onerror="this.outerHTML='<div class=\\'artist-avatar-placeholder\\'>🎵</div>'">`
+                    : `<div class="artist-avatar-placeholder">🎵</div>`}
+                <div class="hero-info">
+                    <p class="artist-type">ARTISTA</p>
+                    <h1 class="artist-name">${name}</h1>
+                    ${tags.length ? `<div class="artist-tags">${tags.map(t => `<span class="tag">${t.name}</span>`).join("")}</div>` : ""}
+                    <div class="artist-stats">
+                        <div class="stat">
+                            <div class="stat-value">${listeners}</div>
+                            <div class="stat-label">Oyentes</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${playcount}</div>
+                            <div class="stat-label">Reproducciones</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    // ── Bio ──
+    const bioHTML = bio ? `
+        <div class="section">
+            <div class="bio-section">
+                <div class="bio-text" id="bioText">${bio}</div>
+                <button class="bio-toggle" id="bioToggle" onclick="toggleBio()">Leer más ↓</button>
+            </div>
+        </div>
+        <div class="section-divider"></div>` : "";
+
+    // ── Top Tracks ── (placeholders, imágenes cargan después)
+    const trackList = tracks?.toptracks?.track || [];
+    const tracksHTML = trackList.length ? `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">TOP <span>CANCIONES</span></h2>
+            </div>
+            <div class="scroll-row">
+                ${trackList.map((t, i) => `
+                    <div class="track-card" onclick="window.open('${t.url}','_blank')">
+                        <div class="track-img-placeholder" id="timg-${i}">🎵</div>
+                        <div class="track-name" title="${t.name}">${t.name}</div>
+                        <div class="track-meta">▶ ${formatNum(t.playcount)} rep.</div>
+                    </div>`).join("")}
+            </div>
+        </div>
+        <div class="section-divider"></div>` : "";
+
+    // ── Álbumes ── (placeholders, imágenes cargan después)
+    const albumsHTML = albums.length ? `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">DIS<span>COGRAFÍA</span></h2>
+            </div>
+            <div class="scroll-row">
+                ${albums.map((a, i) => `
+                    <div class="album-card">
+                        <div class="album-img-placeholder" id="aimg-${i}">💿</div>
+                        <div class="album-name" title="${a.title}">${a.title}</div>
+                        <div class="album-year">${a["first-release-date"]?.slice(0, 4) || ""}</div>
+                    </div>`).join("")}
+            </div>
+        </div>
+        <div class="section-divider"></div>` : "";
+
+    // ── Artistas similares ── (placeholders, imágenes cargan después)
+    const similarList = similar?.similarartists?.artist || [];
+    const similarHTML = similarList.length ? `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">ARTISTAS <span>SIMILARES</span></h2>
+            </div>
+            <div class="scroll-row">
+                ${similarList.map((s, i) => `
+                    <div class="similar-card" onclick="loadArtist('${s.name.replace(/'/g, "\\'")}')">
+                        <div class="similar-img-placeholder" id="simg-${i}">🎤</div>
+                        <div class="similar-name">${s.name}</div>
+                    </div>`).join("")}
+            </div>
+        </div>` : "";
+
+    document.getElementById("mainContent").innerHTML =
+        heroHTML + bioHTML + tracksHTML + albumsHTML + similarHTML;
+
+    // ── Cargar imágenes de tracks en segundo plano ──
+    // Las canciones en Last.fm no tienen imagen propia — usamos
+    // la imagen del artista como fallback visual
+    trackList.forEach((t, i) => {
+        const el = document.getElementById(`timg-${i}`);
+        if (el && thumb) {
+            el.outerHTML = `<img src="${thumb}" class="track-img" alt="${t.name}" onerror="this.outerHTML='<div class=\\'track-img-placeholder\\'>🎵</div>'">`;
+        }
+    });
+
+    // ── Cargar imágenes de álbumes desde Cover Art Archive ──
+    albums.forEach(async (a, i) => {
+        const url = await getAlbumCover(a.id);
+        const el  = document.getElementById(`aimg-${i}`);
+        if (el && url) {
+            el.outerHTML = `<img src="${url}" class="album-img" alt="${a.title}" onerror="this.outerHTML='<div class=\\'album-img-placeholder\\'>💿</div>'">`;
+        }
+    });
+
+    // ── Cargar imágenes de artistas similares desde TheAudioDB ──
+    similarList.forEach(async (s, i) => {
+        const url = await getSimilarImage(s.name);
+        const el  = document.getElementById(`simg-${i}`);
+        if (el && url) {
+            el.outerHTML = `<img src="${url}" class="similar-img" alt="${s.name}" onerror="this.outerHTML='<div class=\\'similar-img-placeholder\\'>🎤</div>'">`;
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CARGAR ARTISTA
+// ═══════════════════════════════════════════════════════════
+async function loadArtist(name) {
+    document.getElementById("mainContent").innerHTML = `
+        <div class="loading-screen">
+            <div class="spinner"></div>
+            <p class="loading-text">Cargando ${name}...</p>
+        </div>`;
+
+    try {
+        // Todas las llamadas en paralelo
+        const [lfmData, tracks, similar, images] = await Promise.all([
+            getArtistInfo(name).catch(() => null),
+            getTopTracks(name).catch(() => null),
+            getSimilarArtists(name).catch(() => null),
+            getArtistImage(name).catch(() => ({ thumb: null, fanart: null }))
+        ]);
+
+        if (!lfmData?.artist) {
+            showError(`No se encontró el artista "${name}"`);
+            return;
+        }
+
+        // Álbumes desde MusicBrainz usando el MBID de Last.fm
+        const mbid = lfmData.artist.mbid;
+        const albums = await getAlbums(mbid);
+
+        document.title = `SOULRADE - ${lfmData.artist.name}`;
+        history.pushState({}, "", `?artista=${encodeURIComponent(lfmData.artist.name)}`);
+
+        renderArtist(lfmData.artist, tracks, similar, albums, images);
+
+    } catch (err) {
+        showError("Error al cargar. Verificá tu conexión.");
+        console.error(err);
+    }
+}
+
+function showError(msg) {
+    document.getElementById("mainContent").innerHTML = `
+        <div class="loading-screen">
+            <p style="font-size:3rem">😕</p>
+            <p style="color:var(--muted); text-align:center">${msg}</p>
+            <a href="index.html" class="nav-back" style="margin-top:1rem">← Volver</a>
+        </div>`;
+}
+
+function toggleBio() {
+    const bio = document.getElementById("bioText");
+    const btn = document.getElementById("bioToggle");
+    if (bio.classList.toggle("expanded")) {
+        btn.textContent = "Leer menos ↑";
+    } else {
+        btn.textContent = "Leer más ↓";
+    }
+}
+
+// ── Buscador del navbar ──────────────────────────────────────
+document.getElementById("navSearch").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && this.value.trim()) {
+        loadArtist(this.value.trim());
+        this.value = "";
+    }
+});
+
+// ── Arranque ─────────────────────────────────────────────────
+const params = new URLSearchParams(location.search);
+loadArtist(params.get("artista") || "Lady Gaga");
+</script>
+</body>
+</html>
