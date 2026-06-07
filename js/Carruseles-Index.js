@@ -1,3 +1,6 @@
+// ── Ruta dinámica a artista.html ─────────────────────────
+const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
+
 // ── Helper local: formatear número ──────────────────────
 function fmtNum(n) {
     const num = parseInt(n) || 0;
@@ -27,7 +30,7 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
                 titulo: t.name,
                 artista: (t.artist && t.artist.name) || t.artist || '',
                 rating: '#' + (i + 1),
-                link: 'artista.html?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '')
+                link: base + 'artista.html?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '')
             };
         });
     } catch (e) {
@@ -209,7 +212,7 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
         <div class="artista-rating">${fmtNum(listeners)} oyentes</div>
         <div class="artista-nombre">${nombre}</div>`;
         div.addEventListener('click', () =>
-            window.location.href = `artista.html?artista=${encodeURIComponent(nombre)}`);
+            window.location.href = `${base}artista.html?artista=${encodeURIComponent(nombre)}`);
         trackEl.appendChild(div);
     });
 })();
@@ -306,7 +309,7 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             '<div class="album-rating">' + playcountLabel + '</div>' +
             '<div class="album-titulo">' + item.titulo + '</div>';
         div.addEventListener('click', function() {
-            window.location.href = 'artista.html?artista=' + encodeURIComponent(item.artista);
+            window.location.href = base + 'artista.html?artista=' + encodeURIComponent(item.artista);
         });
         trackEl.appendChild(div);
     });
@@ -339,7 +342,7 @@ async function cargarTrackCards(trackId, tracks, badgeFn) {
         <div class="media-titulo">${item.titulo}</div>
         <div class="media-artista">${item.artista}</div>`;
     div.addEventListener('click', () =>
-        window.location.href = `artista.html?artista=${encodeURIComponent(item.artista)}`);
+        window.location.href = `${base}artista.html?artista=${encodeURIComponent(item.artista)}`);
     el.appendChild(div);
 });
 }
