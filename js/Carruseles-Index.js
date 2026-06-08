@@ -30,7 +30,7 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
                 titulo: t.name,
                 artista: (t.artist && t.artist.name) || t.artist || '',
                 rating: '#' + (i + 1),
-                link: base + 'artista.html?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '')
+                link: base + 'cancion.html?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '') + '&cancion=' + encodeURIComponent(t.name)
             };
         });
     } catch (e) {
@@ -309,7 +309,7 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             '<div class="album-rating">' + playcountLabel + '</div>' +
             '<div class="album-titulo">' + item.titulo + '</div>';
         div.addEventListener('click', function() {
-            window.location.href = base + 'artista.html?artista=' + encodeURIComponent(item.artista);
+            window.location.href = base + 'album.html?artista=' + encodeURIComponent(item.artista) + '&album=' + encodeURIComponent(item.album);
         });
         trackEl.appendChild(div);
     });
@@ -342,7 +342,7 @@ async function cargarTrackCards(trackId, tracks, badgeFn) {
         <div class="media-titulo">${item.titulo}</div>
         <div class="media-artista">${item.artista}</div>`;
     div.addEventListener('click', () =>
-        window.location.href = `${base}artista.html?artista=${encodeURIComponent(item.artista)}`);
+        window.location.href = `${base}cancion.html?artista=${encodeURIComponent(item.artista)}&cancion=${encodeURIComponent(item.titulo)}`);
     el.appendChild(div);
 });
 }

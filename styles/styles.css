@@ -1,10 +1,5 @@
 html {
     scroll-behavior: smooth;
-    box-sizing: border-box;
-}
-
-*, *::before, *::after {
-    box-sizing: inherit;
 }
 
 body {
@@ -18,6 +13,19 @@ body {
 
 [data-theme="light"] body {
     background-color: #ffffff;
+}
+
+.sugerencia-header {
+    padding: 6px 14px 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+    pointer-events: none;
+}
+.sugerencia-item.activo {
+    background: rgba(255,255,255,0.1);
 }
 
 header {
@@ -1391,9 +1399,8 @@ ul.submenu,
     padding-top: 0.5rem;
 }
 
-.form-actions button, .iniciar{
+.form-actions button, .iniciar, .publicar{
     width: 100%;
-    margin: 0 auto;
     text-align: center;
     padding: 0.75rem;
     border-radius: 10px;
@@ -1415,6 +1422,10 @@ ul.submenu,
     margin-bottom: 1rem;
 }
 
+.form-actions .publicar{
+    width: 10%;
+    margin-bottom: 1rem;
+}
 .form-actions button:hover, .iniciar:hover{
     transform: translateY(-3px);
     background-color: #ffffff;
@@ -1448,6 +1459,190 @@ ul.submenu,
     color: #666;
     -webkit-text-fill-color: #666;
 }
+
+.presentacion-foto-artista {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.artista-link-nombre{
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 10;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e0e0e0;
+    text-decoration: none;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+
+.artista-link-rating{
+    color: #e0e0e0;
+    text-decoration: none;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+
+.presentacion-foto-artista-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px 12px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.seccion-plataformas {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.plataformas-grid {
+    display: flex;
+    gap: 13rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.plataforma-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: transform .2s;
+}
+
+.plataforma-link:hover { transform: scale(1.08); }
+
+.plataforma-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+}
+
+.pl-spotify  { background: radial-gradient(circle at 100% 100%, #2be564, #1DB954); }
+.pl-apple    { background: radial-gradient(circle at 100% 100%, #ff5f6d, #FA2D48); }
+.pl-youtube  { background: radial-gradient(circle at 100% 100%, #ff5050, #FF0000); }
+.pl-amazon   { background: radial-gradient(circle at 100% 100%, #1ad5ff, #00A8E1); }
+
+.plataforma-nombre { font-size: 1rem; color: #aaa; font-weight: 500; letter-spacing: .5px; }
+
+.seccion-reviews {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+ 
+.review-ranking-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+ 
+.review-ranking-label { 
+    font-size: 18px;
+    font-weight: 700;
+    color: #aaa; 
+}
+ 
+.ranking-circulo {
+    gap: 2rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #aaa;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+ 
+.ranking-circulo.activo,
+.ranking-circulo:hover {
+    background: #dbb600;
+    border-color: #dbb600;
+}
+ 
+.review-form-box {
+    margin-bottom: 28px;
+    max-width: 100%;
+}
+
+.review-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    min-height: 80px;
+    font-family: inherit;
+    padding: 1rem 0 0.4rem;
+    box-shadow: none;
+}
+ 
+.review-form-box .field-floating label {
+    top: 1.2rem;
+    transform: none;
+}
+ 
+.review-form-box .field-floating .review-textarea:not(:placeholder-shown) ~ label {
+    display: none;
+    color: #8c52ff;
+    -webkit-text-fill-color: #8c52ff;
+}
+ 
+.reviews-lista { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 22px; 
+}
+
+.review-item-row { 
+    display: flex; 
+    background-color: #48485a;
+    border: 2px solid rgb(58, 58, 58);
+    box-shadow: 0 4px 24px rgba(255, 255, 255, 0.1);
+    border-radius: 2rem;
+    align-items: flex-start; 
+    padding: 0.75rem;
+    gap: 12px; 
+}
+.review-avatar-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1a1a2e;
+    border: 2px solid #2e2e40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+ 
+.review-user-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+
+.review-user { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+
+.review-estrellas { display: flex; align-items: center; }
+
+.estrella-img { width: 35px; height: 35px; }
+
+.review-txt { font-size: 13.5px; color: #aaa; line-height: 1.6; }
 
 footer {
     background-color: #06060c;
