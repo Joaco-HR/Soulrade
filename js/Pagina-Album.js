@@ -86,22 +86,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (elBio)  elBio.textContent  = 'Sin descripción disponible.';
     }
 
-    // ── Portada del álbum (imagen principal) ─────────────────
+    // ── Portada del álbum + foto del artista (en paralelo, URLs distintas) ──
     try {
-        const cover = await getAlbumCover(nombreArtista, nombreAlbum);
-        if (cover && elPanoramica) { elPanoramica.src = cover; elPanoramica.alt = nombreAlbum; }
-    } catch (e) { /* mantener placeholder */ }
-    unshimmer(elPanoramica);
+        const [coverUrl, artistImgs, infoArt] = await Promise.all([
+            getAlbumCover(nombreArtista, nombreAlbum),
+            getArtistImage(nombreArtista),
+            getArtistInfo(nombreArtista)
+        ]);
 
-    // ── Foto del artista (portrait lateral) ──────────────────
-    try {
-        const imgs = await getArtistImage(nombreArtista);
-        const url  = imgs && (imgs.thumb || imgs.fanart);
-        if (url && elArtistaImg) { elArtistaImg.src = url; elArtistaImg.alt = nombreArtista; }
+        // Panorámica = portada real del álbum
+        if (coverUrl && elPanoramica) {
+            elPanoramica.src = coverUrl;
+            elPanoramica.alt = nombreAlbum;
+        }
 
+        // Portrait = foto del artista — si coincide con la portada, buscar via iTunes directo
+        let artistUrl = artistImgs && (artistImgs.thumb || artistImgs.fanart);
+        if (artistUrl && coverUrl && artistUrl === coverUrl) {
+            const iAlt = await getArtistImageItunes(nombreArtista);
+            if (iAlt && iAlt !== coverUrl) artistUrl = iAlt;
+        }
+        if (artistUrl && elArtistaImg) {
+            elArtistaImg.src = artistUrl;
+            elArtistaImg.alt = nombreArtista;
+        }
+
+        // Descripción del artista en el overlay
         if (elArtistaDesc) {
-            const infoArt = await getArtistInfo(nombreArtista);
-            const artObj  = infoArt && infoArt.artist;
+            const artObj = infoArt && infoArt.artist;
             if (artObj) {
                 const tags    = artObj.tags && artObj.tags.tag;
                 const genre   = tags && tags[0] && tags[0].name ? tags[0].name : '';
@@ -110,6 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     } catch (e) { /* mantener placeholder */ }
+    unshimmer(elPanoramica);
     unshimmer(elArtistaImg);
 
     // ── Carrusel: Canciones del álbum ────────────────────────

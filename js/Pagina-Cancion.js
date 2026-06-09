@@ -79,32 +79,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (elBio) elBio.textContent = 'Sin descripción disponible.';
     }
 
-    // ── Imagen de portada (cover del álbum o foto del artista) ──
+    // ── Portada de la canción + foto del artista (en paralelo, URLs distintas) ──
     try {
-        const cover = await getAlbumCover(nombreArtista, nombreCancion);
-        const url   = cover || (await getArtistImage(nombreArtista)).thumb;
-        if (url && elPanoramica) { elPanoramica.src = url; elPanoramica.alt = nombreCancion; }
-    } catch (e) { /* mantener placeholder */ }
-    unshimmer(elPanoramica);
+        const [coverUrl, artistImgs, infoArt] = await Promise.all([
+            getTrackCover(nombreArtista, nombreCancion),
+            getArtistImage(nombreArtista),
+            getArtistInfo(nombreArtista)
+        ]);
 
-    // ── Foto del artista (portrait lateral) ──────────────────
-    try {
-        const imgs = await getArtistImage(nombreArtista);
-        const url  = imgs && (imgs.thumb || imgs.fanart);
-        if (url && elArtistaImg) { elArtistaImg.src = url; elArtistaImg.alt = nombreArtista; }
+        // Panorámica = portada real de la canción/álbum
+        const panUrl = coverUrl || (artistImgs && (artistImgs.thumb || artistImgs.fanart));
+        if (panUrl && elPanoramica) {
+            elPanoramica.src = panUrl;
+            elPanoramica.alt = nombreCancion;
+        }
 
-        // Bio breve del artista en el overlay
+        // Portrait = foto del artista — si coincide con la panorámica, buscar alternativa
+        let artistUrl = artistImgs && (artistImgs.thumb || artistImgs.fanart);
+        if (artistUrl && panUrl && artistUrl === panUrl) {
+            const iAlt = await getArtistImageItunes(nombreArtista);
+            if (iAlt && iAlt !== panUrl) artistUrl = iAlt;
+        }
+        if (artistUrl && elArtistaImg) {
+            elArtistaImg.src = artistUrl;
+            elArtistaImg.alt = nombreArtista;
+        }
+
+        // Descripción del artista en el overlay
         if (elArtistaDesc) {
-            const infoArt = await getArtistInfo(nombreArtista);
-            const artObj  = infoArt && infoArt.artist;
+            const artObj = infoArt && infoArt.artist;
             if (artObj) {
-                const tags = artObj.tags && artObj.tags.tag;
-                const genre = tags && tags[0] && tags[0].name ? tags[0].name : '';
+                const tags    = artObj.tags && artObj.tags.tag;
+                const genre   = tags && tags[0] && tags[0].name ? tags[0].name : '';
                 const oyentes = artObj.stats && artObj.stats.listeners ? fmt(artObj.stats.listeners) + ' oyentes' : '';
                 elArtistaDesc.textContent = [genre, oyentes].filter(Boolean).join(' · ') || '';
             }
         }
     } catch (e) { /* mantener placeholder */ }
+    unshimmer(elPanoramica);
     unshimmer(elArtistaImg);
 
     // ── Carrusel: Canciones similares (top tracks del artista, excluyendo la actual) ──
@@ -140,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     cancionesTrack.appendChild(div);
 
-                    getAlbumCover(nombreArtista, t.name)
+                    getTrackCover(nombreArtista, t.name)
                         .then(url => url && (div.querySelector('img').src = url))
                         .catch(() => {});
                 }

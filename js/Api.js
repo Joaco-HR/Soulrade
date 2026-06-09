@@ -198,6 +198,23 @@ async function getAlbums(mbid, limit) {
     } catch (e) { return []; }
 }
 
+// ── Portada específica de una canción ────────────────────────
+// Busca el álbum al que pertenece via Last.fm y luego obtiene su portada
+async function getTrackCover(artistName, trackName) {
+    try {
+        // 1. Last.fm track.getInfo para obtener el álbum al que pertenece
+        const info  = await lastfm({ method: 'track.getinfo', track: trackName, artist: artistName, autocorrect: 1 });
+        const album = info && info.track && info.track.album;
+        if (album && album.title) {
+            const cover = await getAlbumCover(artistName, album.title);
+            if (cover) return cover;
+        }
+    } catch (e) { /* ignorar */ }
+
+    // 2. Fallback: buscar directamente por nombre de canción como si fuera álbum
+    return await getAlbumCover(artistName, trackName);
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 function formatNum(n) {
     var num = parseInt(n);

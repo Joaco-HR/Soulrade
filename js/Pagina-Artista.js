@@ -58,11 +58,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── 6. Imagen del artista ────────────────────────────────
     try {
-        const imgs = await getArtistImage(nombreArtista);
-        const url  = imgs && (imgs.fanart || imgs.thumb);
-        if (url) {
-            if (elPortrait)   { elPortrait.src   = url; elPortrait.alt   = nombreArtista; }
-            if (elPanoramica) { elPanoramica.src  = url; elPanoramica.alt = nombreArtista + ' concierto'; }
+        // Buscar en paralelo: Spotify/iTunes-album para una, iTunes-directo para la otra
+        const [imgs, itunesDirect] = await Promise.all([
+            getArtistImage(nombreArtista),
+            getArtistImageItunes(nombreArtista)
+        ]);
+
+        const urlPrincipal = imgs && (imgs.fanart || imgs.thumb);
+
+        // Portrait: imagen principal (Spotify suele dar foto de prensa)
+        if (urlPrincipal && elPortrait) {
+            elPortrait.src = urlPrincipal;
+            elPortrait.alt = nombreArtista;
+        }
+
+        // Panorámica: iTunes directo si es distinta, si no la misma
+        const urlPanoramica = (itunesDirect && itunesDirect !== urlPrincipal)
+            ? itunesDirect
+            : urlPrincipal;
+        if (urlPanoramica && elPanoramica) {
+            elPanoramica.src = urlPanoramica;
+            elPanoramica.alt = nombreArtista + ' concierto';
         }
     } catch (e) { /* mantener placeholder */ }
     unshimmer(elPortrait);
@@ -98,8 +114,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     cancionesTrack.appendChild(div);
 
-                    // Cargar portada en paralelo
-                    getAlbumCover(nombreArtista, t.name)
+                    // Cargar portada real de la canción en paralelo
+                    getTrackCover(nombreArtista, t.name)
                         .then(url => url && (div.querySelector('img').src = url))
                         .catch(() => {});
                 }
