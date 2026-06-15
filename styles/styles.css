@@ -1800,6 +1800,27 @@ footer {
         padding-right: 1.25rem;
     }
 
+    .seccion-formulario{
+        display: block;
+        margin: 0  auto;
+        padding: 1.5rem;
+    }
+
+    .seccion-formulario > * {
+        margin-top: 2rem;
+    }
+
+    .seccion-formulario .form-actions button, .seccion-formulario .form-actions a{
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       margin: 0 auto;
+    }
+
+    .seccion-formulario .form-actions button{
+        width: 100%;
+    }
+    
     footer {
         padding: 2rem 1.5rem 1rem;
     }
@@ -1956,7 +1977,7 @@ footer {
     .seccion-formulario .form-actions button{
         width: 100%;
     }
-    
+
     footer {
         padding: 1.75rem 1rem 1rem;
     }
