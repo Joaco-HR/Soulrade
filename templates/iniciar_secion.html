@@ -41,6 +41,7 @@
                                 </button>
                             </div>
                             <ul class="submenu collapse" id="submenuGeneros">
+                                <li><a href="buscador_generos.html?genero=pop">Pop</a></li>
                                 <li><a href="buscador_generos.html?genero=rock">Rock</a></li>
                                 <li><a href="buscador_generos.html?genero=electronic">Electrónica</a>
                                 <li><a href="buscador_generos.html?genero=jazz">Jazz</a></li>
@@ -50,6 +51,25 @@
                                 <li><a href="buscador_generos.html?genero=metal">Metal</a></li>
                                 <li><a href="buscador_generos.html?genero=indie">Folk / Indie</a></li>
                                 <li><a href="buscador_generos.html?genero=latin">Pop Latino</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenus">
+                            <div class="submenus-wrapper">
+                                <a href="#" class="menu-link">Artistas</a>
+                                <button class="boton-submenus" data-bs-toggle="collapse" data-bs-target="#submenuArtistas" aria-controls="submenuArtistas" aria-expanded="false" aria-label="Abrir submenú">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <ul class="submenu collapse" id="submenuArtistas">
+                                <li><a href="buscador_artistas.html?categoria=populares">Más populares</a></li>
+                                <li><a href="buscador_artistas.html?categoria=nuevos">Nuevos talentos</a></li>
+                                <li><a href="buscador_artistas.html?categoria=internacionales">Internacionales</a></li>
+                                <li><a href="buscador_artistas.html?categoria=locales">Artistas locales</a></li>
+                                <li><a href="buscador_artistas.html?categoria=solistas">Solistas</a></li>
+                                <li><a href="buscador_artistas.html?categoria=bandas">Bandas</a></li>
+                                <li><a href="buscador_artistas.html?categoria=djs">DJs / Productores</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -117,7 +137,7 @@
             </button>
         </nav>
     </header>
-    <div class="offcanvas offcanvas-end offcanvas-mobile" tabindex="-1" id="offcanvasMobile" aria-labelledby="offcanvasMobileLabel">
+<div class="offcanvas offcanvas-end offcanvas-mobile" tabindex="-1" id="offcanvasMobile" aria-labelledby="offcanvasMobileLabel">
         <div class="offcanvas-header">
             <a href="index.html" class="logo offcanvas-logo">
                 <img src="../assets/logo.png" alt="Logo de Soulrade" width="36" height="36">
@@ -148,6 +168,7 @@
                     </svg>
                 </button>
                 <ul class="mobile-submenu collapse" id="mobileGeneros">
+                    <li><a href="buscador_generos.html?genero=pop">Pop</a></li>
                     <li><a href="buscador_generos.html?genero=rock">Rock</a></li>
                     <li><a href="buscador_generos.html?genero=electronic">Electrónica</a>
                     <li><a href="buscador_generos.html?genero=jazz">Jazz</a></li>
@@ -157,6 +178,23 @@
                     <li><a href="buscador_generos.html?genero=metal">Metal</a></li>
                     <li><a href="buscador_generos.html?genero=indie">Folk / Indie</a></li>
                     <li><a href="buscador_generos.html?genero=latin">Pop Latino</a></li>
+                </ul>
+            </div>
+            <div class="mobile-seccion">
+                <button class="mobile-seccion-btn" data-bs-toggle="collapse" data-bs-target="#mobileGeneros" aria-expanded="false">
+                    <span>Artista</span>
+                    <svg class="mobile-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                <ul class="mobile-submenu collapse" id="mobileGeneros">
+                    <li><a href="buscador_artistas.html?categoria=populares">Más populares</a></li>
+                    <li><a href="buscador_artistas.html?categoria=nuevos">Nuevos talentos</a></li>
+                    <li><a href="buscador_artistas.html?categoria=internacionales">Internacionales</a></li>
+                    <li><a href="buscador_artistas.html?categoria=locales">Artistas locales</a></li>
+                    <li><a href="buscador_artistas.html?categoria=solistas">Solistas</a></li>
+                    <li><a href="buscador_artistas.html?categoria=bandas">Bandas</a></li>
+                    <li><a href="buscador_artistas.html?categoria=djs">DJs / Productores</a></li>
                 </ul>
             </div>
         </div>

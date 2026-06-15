@@ -1736,39 +1736,6 @@ footer {
 
 @media (max-width: 1199px) {
     .Popular-de-la-semana {
-        padding: 4rem 3rem;
-    }
-
-    .Mosaico {
-        height: 440px;
-    }
-
-    .media-card {
-        width: 300px;
-    }
-
-    .album-card {
-        width: 230px;
-    }
-
-    .artista-card {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    .artista-foto-wrap {
-        width: 140px;
-        height: 140px;
-    }
-
-    footer {
-        padding: 2.5rem 3rem 1.5rem;
-    }
-}
-
-/* ── Tablet (≤ 991px) ── */
-@media (max-width: 991px) {
-    .Popular-de-la-semana {
         padding: 3rem 1.5rem;
     }
 
@@ -1776,7 +1743,6 @@ footer {
         font-size: 26px;
     }
 
-    /* Mosaico: apila foto grande encima, miniaturas debajo en fila */
     .Mosaico {
         flex-direction: column;
         height: auto;
@@ -1834,7 +1800,6 @@ footer {
         padding-right: 1.25rem;
     }
 
-    /* Footer: 2 columnas */
     footer {
         padding: 2rem 1.5rem 1rem;
     }
@@ -1850,7 +1815,6 @@ footer {
     }
 }
 
-/* ── Mobile (≤ 575px) ── */
 @media (max-width: 575px) {
     .Popular-de-la-semana {
         padding: 2rem 1rem;
@@ -1860,7 +1824,6 @@ footer {
         font-size: 22px;
     }
 
-    /* Mosaico foto grande más compacta */
     .Foto-Grande {
         height: 240px;
     }
@@ -1877,7 +1840,6 @@ footer {
         font-size: 0.75rem;
     }
 
-    /* Botones del mosaico siempre visibles en touch */
     .mosaico-btn {
         opacity: 0.7;
         width: 34px;
@@ -1889,12 +1851,10 @@ footer {
         height: 110px;
     }
 
-    /* Carruseles */
     .seccion-carrusel {
         padding: 1.5rem 0.75rem 1.25rem;
     }
 
-    /* Ocultar botones prev/next en mobile (scroll táctil suficiente) */
     .carrusel-btn {
         display: none;
     }
@@ -1935,7 +1895,68 @@ footer {
         font-size: 0.72rem;
     }
 
-    /* Footer: 1 columna */
+    .presentacion-fotos {
+        flex-direction: column;
+        height: auto;
+    }
+ 
+    .presentacion-foto-portrait {
+        flex: none;
+        width: 100%;
+        height: 260px;
+        border-right: none;
+        border-bottom: 2px solid #2e2e40;
+    }
+ 
+    .presentacion-foto-panoramica {
+        flex: none;
+        width: 100%;
+        height: 200px;
+    }
+
+    .plataformas-grid{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .form-actions button, .iniciar, .publicar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        min-width: 120px;
+        padding: 0.65rem 1.5rem;
+    }
+ 
+    .form-actions .iniciar,
+    .form-actions .publicar {
+        width: auto;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .seccion-formulario{
+        display: block;
+        margin: 0  auto;
+        padding: 1.5rem;
+    }
+
+    .seccion-formulario > * {
+        margin-top: 2rem;
+    }
+
+    .seccion-formulario .form-actions button, .seccion-formulario .form-actions a{
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       margin: 0 auto;
+    }
+
+    .seccion-formulario .form-actions button{
+        width: 100%;
+    }
+    
     footer {
         padding: 1.75rem 1rem 1rem;
     }
@@ -1956,5 +1977,20 @@ footer {
 
     .footer-titulo {
         font-size: 0.85rem;
+    }
+}
+
+#artistas-mosaico {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+@media (max-width: 575px) {
+    #artistas-mosaico {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
