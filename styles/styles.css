@@ -1935,9 +1935,21 @@ footer {
         height: 200px;
     }
 
-    .plataformas-grid{
-        display: grid;
+    .plataformas-grid {
+        display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.5rem !important;               
+        padding: 0 !important;                
+        justify-content: center;
+    }
+    
+    .plataforma-icon {
+        width: 100px !important;            
+        height: 100px !important;
+    }
+    
+    .plataforma-nombre {
+        font-size: 0.9rem !important;        
     }
 
     .form-actions button, .iniciar, .publicar {
