@@ -17,4 +17,3 @@ python manage.py runserver
 
 La aplicación estará disponible en:
 **http://127.0.0.1:8000/**
-## Panel de administración
