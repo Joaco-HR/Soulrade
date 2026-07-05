@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}SOULRADE - Descubrí música{% endblock %}
+
+{% block content %}
+    <section class="Popular-de-la-semana">
+        <div class="Encabezado"><span data-i18n="index.mas_popular">Más popular del momento</span></div>
+        <div class="Mosaico-Wrapper">
+            <div class="Mosaico" id="mosaico">
+                <div class="Foto-Grande">
+                    <div class="mosaico-slide-track" id="mosaico-track"></div>
+                    <button class="mosaico-btn mosaico-btn-prev" id="mosaico-prev" aria-label="Anterior">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                        </svg>
+                    </button>
+                    <button class="mosaico-btn mosaico-btn-next" id="mosaico-next" aria-label="Siguiente">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                    <div class="mosaico-indicadores" id="mosaico-indicadores"></div>
+                </div>
+                <div class="Fotos-Caida" id="fotos-caida"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-artistas">
+        <div class="Encabezado"><span data-i18n="sec.artistas_reconocidos">Artistas Reconocidos Mundialmente</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="artistas-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="artistas-track">
+                <div class="index-loading"><span data-i18n="carga.artistas">Cargando artistas...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="artistas-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-canciones">
+        <div class="Encabezado"><span data-i18n="sec.canciones_reconocidas">Canciones Reconocidas Mundialmente</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="canciones-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="canciones-track">
+                <div class="index-loading"><span data-i18n="carga.canciones">Cargando canciones...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="canciones-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-albumes">
+        <div class="Encabezado"><span data-i18n="sec.albumes_populares_index">Álbumes Populares</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="albumes-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="albumes-track">
+                <div class="index-loading"><span data-i18n="carga.albumes">Cargando álbumes...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="albumes-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-pop">
+        <div class="Encabezado"><span data-i18n="sec.iconos_pop">Iconos del Pop</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="pop-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="pop-track">
+                <div class="index-loading"><span data-i18n="carga.iconos_pop">Cargando iconos del pop...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="pop-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-rock">
+        <div class="Encabezado"><span data-i18n="sec.iconos_rock">Iconos del Rock</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="rock-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="rock-track">
+                <div class="index-loading"><span data-i18n="carga.canciones_rock">Cargando canciones de rock...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="rock-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="seccion-carrusel" id="sec-urbano">
+        <div class="Encabezado"><span data-i18n="sec.iconos_urbano">Iconos del Urbano</span></div>
+        <div class="carrusel-wrapper">
+            <button class="carrusel-btn carrusel-prev" data-target="urbano-track" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </button>
+            <div class="carrusel-track" id="urbano-track">
+                <div class="index-loading"><span data-i18n="carga.urbano">Cargando urbano...</span></div>
+            </div>
+            <button class="carrusel-btn carrusel-next" data-target="urbano-track" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/Carruseles-Index.js' %}?v=20260703g"></script>
+{% endblock %}

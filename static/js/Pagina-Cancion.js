@@ -1,15 +1,11 @@
-// ── Pagina-Cancion.js ────────────────────────────────────────
-// Lee ?artista= y ?cancion= de la URL y rellena toda la página
-
 document.addEventListener('DOMContentLoaded', async () => {
 
     const params       = new URLSearchParams(window.location.search);
     const nombreArtista = params.get('artista') || 'Lady Gaga';
     const nombreCancion = params.get('cancion')  || 'Die With a Smile';
 
-    const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
+    const base = '/';
 
-    // ── Helpers ──────────────────────────────────────────────
     function fmt(n) {
         const num = parseInt(n) || 0;
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -19,10 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function shimmer(el) { el && el.classList.add('shimmer'); }
     function unshimmer(el) { el && el.classList.remove('shimmer'); }
 
-    // ── Título de pestaña ────────────────────────────────────
     document.title = nombreCancion + ' - ' + nombreArtista + ' | SOULRADE';
 
-    // ── Elementos del DOM ────────────────────────────────────
     const elTitulo    = document.getElementById('cancion-titulo');
     const elOyentes   = document.getElementById('cancion-oyentes');
     const elBio       = document.getElementById('cancion-bio');
@@ -33,20 +27,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const elArtistaImg    = elArtistaWrap && elArtistaWrap.querySelector('img');
     const elArtistaLink   = elArtistaWrap && elArtistaWrap.closest('a');
 
-    // ── Mostrar nombres inmediatamente ───────────────────────
     if (elTitulo)   elTitulo.textContent  = nombreCancion;
-    if (elOyentes)  elOyentes.textContent = 'Cargando...';
+    if (elOyentes)  elOyentes.textContent = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('estado.cargando')) || 'Cargando...';
     if (elBio)      elBio.textContent     = '';
     if (elArtistaNombre) elArtistaNombre.textContent = nombreArtista;
     shimmer(elPanoramica);
     shimmer(elArtistaImg);
 
-    // ── Link al artista ──────────────────────────────────────
     if (elArtistaLink) {
-        elArtistaLink.href = base + 'artista.html?artista=' + encodeURIComponent(nombreArtista);
+        elArtistaLink.href = base + 'artista/?artista=' + encodeURIComponent(nombreArtista);
     }
 
-    // ── Actualizar links de plataformas ──────────────────────
     const query = encodeURIComponent(nombreCancion + ' ' + nombreArtista);
     const platLinks = {
         'open.spotify.com':   `https://open.spotify.com/search/${query}`,
@@ -60,26 +51,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ── Info de la canción (Last.fm track.getInfo) ───────────
+    function mostrarBio(el, bioLimpia) {
+        if (!el) return;
+        if (bioLimpia && window.SOULRADE_IDIOMA) {
+            window.SOULRADE_IDIOMA.aplicarBio(el, bioLimpia);
+        } else if (bioLimpia) {
+            el.textContent = bioLimpia;
+        } else {
+            el.textContent = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('bio.sin_descripcion')) || 'Sin descripción disponible.';
+        }
+    }
+
     try {
         const info  = await lastfm({ method: 'track.getinfo', track: nombreCancion, artist: nombreArtista, autocorrect: 1 });
         const track = info && info.track;
         if (track) {
-            const plays = track.playcount ? fmt(track.playcount) + ' reproducciones' : '';
-            if (elOyentes) elOyentes.textContent = plays;
+            const plays = track.playcount
+                ? `${fmt(track.playcount)} <span data-i18n="unidad.reproducciones">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.reproducciones')) || 'reproducciones'}</span>`
+                : '';
+            if (elOyentes) elOyentes.innerHTML = plays;
 
             const wikiRaw = track.wiki && (track.wiki.summary || track.wiki.content) || '';
-            if (elBio) elBio.textContent = cleanBio(wikiRaw) || 'Sin descripción disponible.';
+            mostrarBio(elBio, cleanBio(wikiRaw));
         } else {
             if (elOyentes) elOyentes.textContent = '';
-            if (elBio) elBio.textContent = 'Sin descripción disponible.';
+            mostrarBio(elBio, '');
         }
     } catch (e) {
         if (elOyentes) elOyentes.textContent = '';
-        if (elBio) elBio.textContent = 'Sin descripción disponible.';
+        mostrarBio(elBio, '');
     }
 
-    // ── Portada de la canción + foto del artista (en paralelo, URLs distintas) ──
     try {
         const [coverUrl, artistImgs, infoArt] = await Promise.all([
             getTrackCover(nombreArtista, nombreCancion),
@@ -87,14 +89,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             getArtistInfo(nombreArtista)
         ]);
 
-        // Panorámica = portada real de la canción/álbum
         const panUrl = coverUrl || (artistImgs && (artistImgs.thumb || artistImgs.fanart));
         if (panUrl && elPanoramica) {
             elPanoramica.src = panUrl;
             elPanoramica.alt = nombreCancion;
         }
 
-        // Portrait = foto del artista — si coincide con la panorámica, buscar alternativa
         let artistUrl = artistImgs && (artistImgs.thumb || artistImgs.fanart);
         if (artistUrl && panUrl && artistUrl === panUrl) {
             const iAlt = await getArtistImageItunes(nombreArtista);
@@ -105,28 +105,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             elArtistaImg.alt = nombreArtista;
         }
 
-        // Descripción del artista en el overlay
         if (elArtistaDesc) {
             const artObj = infoArt && infoArt.artist;
             if (artObj) {
                 const tags    = artObj.tags && artObj.tags.tag;
                 const genre   = tags && tags[0] && tags[0].name ? tags[0].name : '';
-                const oyentes = artObj.stats && artObj.stats.listeners ? fmt(artObj.stats.listeners) + ' oyentes' : '';
-                elArtistaDesc.textContent = [genre, oyentes].filter(Boolean).join(' · ') || '';
+                const genreHtml = genre.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const oyentes = artObj.stats && artObj.stats.listeners
+                    ? `${fmt(artObj.stats.listeners)} <span data-i18n="unidad.oyentes">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.oyentes')) || 'oyentes'}</span>`
+                    : '';
+                elArtistaDesc.innerHTML = [genreHtml, oyentes].filter(Boolean).join(' · ') || '';
             }
         }
-    } catch (e) { /* mantener placeholder */ }
+    } catch (e) {}
     unshimmer(elPanoramica);
     unshimmer(elArtistaImg);
 
-    // ── Carrusel: Canciones similares (top tracks del artista, excluyendo la actual) ──
     const cancionesTrack = document.getElementById('canciones-track');
     if (cancionesTrack) {
-        cancionesTrack.innerHTML = '<div class="index-loading">Cargando canciones similares...</div>';
+        cancionesTrack.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.canciones_similares')) || 'Cargando canciones similares...'}</div>`;
         try {
             const data   = await getTopTracks(nombreArtista, 15);
             const tracks = (data && data.toptracks && data.toptracks.track) || [];
-            // Excluir la canción actual
             const similares = tracks.filter(t => t.name.toLowerCase() !== nombreCancion.toLowerCase());
 
             cancionesTrack.innerHTML = '';
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="media-titulo">${t.name}</div>
                         <div class="media-artista">${nombreArtista}</div>`;
                     div.addEventListener('click', () => {
-                        window.location.href = base + 'cancion.html?artista=' +
+                        window.location.href = base + 'cancion/?artista=' +
                             encodeURIComponent(nombreArtista) + '&cancion=' + encodeURIComponent(t.name);
                     });
                     cancionesTrack.appendChild(div);
@@ -162,7 +162,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Carrusel genérico (flechas) ──────────────────────────
     document.querySelectorAll('.carrusel-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const trackId = btn.getAttribute('data-target');

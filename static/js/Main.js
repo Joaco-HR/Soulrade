@@ -1,18 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // ── Rutas base ───────────────────────────────────────────
-    const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
+    const base = '/';
 
     // ── Navegación ───────────────────────────────────────────
     function irArtista(nombre) {
         if (!nombre.trim()) return;
-        window.location.href = base + `artista.html?artista=${encodeURIComponent(nombre.trim())}`;
+        window.location.href = base + `artista/?artista=${encodeURIComponent(nombre.trim())}`;
     }
     function irCancion(artista, cancion) {
-        window.location.href = base + `cancion.html?artista=${encodeURIComponent(artista)}&cancion=${encodeURIComponent(cancion)}`;
+        window.location.href = base + `cancion/?artista=${encodeURIComponent(artista)}&cancion=${encodeURIComponent(cancion)}`;
     }
     function irAlbum(artista, album) {
-        window.location.href = base + `album.html?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`;
+        window.location.href = base + `album/?artista=${encodeURIComponent(artista)}&album=${encodeURIComponent(album)}`;
     }
 
     // ── Conectar TODOS los inputs del buscador ───────────────
@@ -105,16 +105,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (artistas.length) {
             const header = document.createElement('li');
             header.className = 'sugerencia-header';
-            header.textContent = 'Artistas';
+            header.textContent = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('nav.artistas')) || 'Artistas';
             lista.appendChild(header);
 
             artistas.forEach(a => {
                 const li = document.createElement("li");
                 li.className = "sugerencia-item";
+                const textoOyentes = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.oyentes')) || 'oyentes';
                 li.innerHTML = `
                     <span class="sug-icon">🎤</span>
                     <span class="sug-nombre">${a.name}</span>
-                    ${a.listeners ? `<span class="sug-listeners">${formatNum(parseInt(a.listeners))} oyentes</span>` : ""}
+                    ${a.listeners ? `<span class="sug-listeners">${formatNum(parseInt(a.listeners))} <span data-i18n="unidad.oyentes">${textoOyentes}</span></span>` : ""}
                 `;
                 li.addEventListener("mousedown", () => irArtista(a.name));
                 lista.appendChild(li);
@@ -125,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (canciones.length) {
             const header = document.createElement('li');
             header.className = 'sugerencia-header';
-            header.textContent = 'Canciones';
+            header.textContent = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('nav.canciones')) || 'Canciones';
             lista.appendChild(header);
 
             canciones.forEach(t => {

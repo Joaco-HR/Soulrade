@@ -1,37 +1,28 @@
-// ── Buscador-Generos.js ─────────────────────────────────────────
-
 document.addEventListener("DOMContentLoaded", async () => {
-
-    const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
-
+    const base = '/';
     const params = new URLSearchParams(window.location.search);
     const genero = (params.get("genero") || "").trim();
 
-    // ── Mapeo de tags: el tag del URL → el tag real de Last.fm que da mejores resultados ──
-    // Igual que Carruseles-Index usa 'classic rock' en vez de 'rock' para obtener Queen, AC/DC, etc.
     const TAG_MAP = {
         "pop":        "pop",
-        "rock":       "classic rock",   // 'rock' genérico trae indie moderno; 'classic rock' trae Queen, Led Zeppelin, AC/DC
-        "hip-hop":    "hip hop",        // guión no funciona bien en Last.fm
+        "rock":       "classic rock",   
+        "hip-hop":    "hip hop",        
         "electronic": "electronic",
         "jazz":       "jazz",
         "classical":  "classical",
-        "soul":       "rnb",            // 'soul' trae resultados mixtos; 'rnb' es más consistente en Last.fm
-        "metal":      "heavy metal",    // 'metal' trae resultados muy variados; 'heavy metal' focaliza mejor
+        "soul":       "rnb",            
+        "metal":      "heavy metal",    
         "indie":      "indie",
         "latin":      "latin",
     };
 
-    // Tag real que se manda a la API
     const tagApi = TAG_MAP[genero.toLowerCase()] || genero;
 
-    // ── Título del género ────────────────────────────────────
     const tituloGenero = document.querySelector(".busq-titulo, #titulo-genero");
     if (tituloGenero && genero) {
         tituloGenero.textContent = genero.toUpperCase();
     }
 
-    // ── Helpers ──────────────────────────────────────────────
     function fmtNum(n) {
         const num = parseInt(n) || 0;
         if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
@@ -43,16 +34,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (trackEl) trackEl.innerHTML = `<div class="index-loading">${msg}</div>`;
     }
 
-    // Imagen de artista via Spotify → iTunes (idéntico a Carruseles-Index)
     async function getImgArtista(nombre, fallback = "../assets/Artista 1.jfif") {
         try {
             const imgs = await getArtistImage(nombre);
             if (imgs && imgs.thumb) return imgs.thumb;
-        } catch { /* sigue */ }
+        } catch {}
         return fallback;
     }
 
-    // ── Refs a los tracks ────────────────────────────────────
     const artistasTrack = document.getElementById("artistas-track");
     const cancionesTrack = document.getElementById("canciones-track");
     const albumesTrack   = document.getElementById("albumes-track");
@@ -64,12 +53,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    setMsg(artistasTrack,  "Cargando artistas...");
-    setMsg(cancionesTrack, "Cargando canciones...");
-    setMsg(albumesTrack,   "Cargando álbumes...");
+    setMsg(artistasTrack,  `${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.artistas')) || 'Cargando artistas...'}`);
+    setMsg(cancionesTrack, `${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.canciones')) || 'Cargando canciones...'}`);
+    setMsg(albumesTrack,   `${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.albumes')) || 'Cargando álbumes...'}`);
 
     try {
-        // ── Fetch inicial en paralelo con el tag correcto ────
         const [artistasRes, cancionesRes] = await Promise.all([
             lastfm({ method: "tag.gettopartists", tag: tagApi, limit: 15 }),
             lastfm({ method: "tag.gettoptracks",  tag: tagApi, limit: 15 })
@@ -78,11 +66,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const artistas  = artistasRes?.topartists?.artist || [];
         const canciones = cancionesRes?.tracks?.track     || [];
 
-        // ════════════════════════════════════════════════════
-        // ARTISTAS
-        // 1) Render inmediato con placeholder
-        // 2) Imágenes en paralelo — actualizar cada una ni bien llega
-        // ════════════════════════════════════════════════════
         artistasTrack.innerHTML = "";
 
         artistas.forEach((a, i) => {
@@ -97,10 +80,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                          alt="${a.name}"
                          onerror="this.src='../assets/Artista 1.jfif'">
                 </div>
-                <div class="artista-rating">${fmtNum(a.listeners)} oyentes</div>
+                <div class="artista-rating">${fmtNum(a.listeners)} <span data-i18n="unidad.oyentes">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.oyentes')) || 'oyentes'}</span></div>
                 <div class="artista-nombre">${a.name}</div>`;
             div.addEventListener("click", () => {
-                window.location.href = base + `artista.html?artista=${encodeURIComponent(a.name)}`;
+                window.location.href = base + `artista/?artista=${encodeURIComponent(a.name)}`;
             });
             artistasTrack.appendChild(div);
         });
@@ -110,14 +93,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const foto = await getImgArtista(a.name, "../assets/Artista 1.jfif");
                 const img  = artistasTrack.querySelector(`[data-artista-idx="${i}"] .artista-foto`);
                 if (img && foto) img.src = foto;
-            } catch { /* mantener placeholder */ }
+            } catch {}
         });
 
-        // ════════════════════════════════════════════════════
-        // CANCIONES
-        // 1) Render inmediato con placeholder
-        // 2) Portadas en paralelo — actualizar cada una ni bien llega
-        // ════════════════════════════════════════════════════
         const PH_CANCION = "../assets/Mosaico 1.png";
         cancionesTrack.innerHTML = "";
 
@@ -139,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="media-artista">${artista}</div>`;
             div.addEventListener("click", () => {
                 window.location.href = base +
-                    `cancion.html?artista=${encodeURIComponent(artista)}&cancion=${encodeURIComponent(t.name)}`;
+                    `cancion/?artista=${encodeURIComponent(artista)}&cancion=${encodeURIComponent(t.name)}`;
             });
             cancionesTrack.appendChild(div);
         });
@@ -150,15 +128,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const portada = await getTrackCover(artista, t.name);
                 const img     = cancionesTrack.querySelector(`[data-cancion-idx="${i}"] .media-thumb`);
                 if (img && portada) img.src = portada;
-            } catch { /* mantener placeholder */ }
+            } catch {}
         });
 
-        // ════════════════════════════════════════════════════
-        // ÁLBUMES — idéntico a "Álbumes Populares" de Carruseles-Index:
-        // 1) Por cada artista del tag → artist.gettopalbums (top 1)
-        // 2) Render inmediato con placeholder
-        // 3) Promise.all de getAlbumCover → actualizar todas las portadas
-        // ════════════════════════════════════════════════════
         const PH_ALBUM = "../assets/Mosaico 1.png";
         albumesTrack.innerHTML = "";
 
@@ -181,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         playcount: parseInt(album.playcount) || 0
                     });
                 }
-            } catch { /* skip este artista */ }
+            } catch {}
         }
 
         albumsData.forEach((item, i) => {
@@ -201,12 +173,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="album-titulo">${item.titulo}</div>`;
             div.addEventListener("click", () => {
                 window.location.href = base +
-                    `album.html?artista=${encodeURIComponent(item.artista)}&album=${encodeURIComponent(item.album)}`;
+                    `album/?artista=${encodeURIComponent(item.artista)}&album=${encodeURIComponent(item.album)}`;
             });
             albumesTrack.appendChild(div);
         });
 
-        // Promise.all para todas las portadas a la vez (igual que Carruseles-Index)
         const covers = await Promise.all(
             albumsData.map(item =>
                 getAlbumCover(item.artista, item.album).catch(() => null)
@@ -225,7 +196,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         setMsg(albumesTrack,   "Error cargando álbumes.");
     }
 
-    // ── Carrusel genérico (mismo listener que Carruseles-Index) ──
     document.querySelectorAll(".carrusel-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const trackId = btn.getAttribute("data-target");

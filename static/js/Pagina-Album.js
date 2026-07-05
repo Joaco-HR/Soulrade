@@ -1,15 +1,10 @@
-// ── Pagina-Album.js ──────────────────────────────────────────
-// Lee ?artista= y ?album= de la URL y rellena toda la página
-
 document.addEventListener('DOMContentLoaded', async () => {
-
     const params        = new URLSearchParams(window.location.search);
     const nombreArtista = params.get('artista') || 'Lady Gaga';
     const nombreAlbum   = params.get('album')   || 'MAYHEM';
 
-    const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
+    const base = '/';
 
-    // ── Helpers ──────────────────────────────────────────────
     function fmt(n) {
         const num = parseInt(n) || 0;
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -19,10 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function shimmer(el) { el && el.classList.add('shimmer'); }
     function unshimmer(el) { el && el.classList.remove('shimmer'); }
 
-    // ── Título de pestaña ────────────────────────────────────
     document.title = nombreAlbum + ' - ' + nombreArtista + ' | SOULRADE';
 
-    // ── Elementos del DOM ────────────────────────────────────
     const elTitulo       = document.getElementById('cancion-titulo');
     const elAnio         = document.getElementById('cancion-oyentes');
     const elBio          = document.getElementById('cancion-bio');
@@ -33,20 +26,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const elArtistaImg   = elArtistaWrap && elArtistaWrap.querySelector('img');
     const elArtistaLink  = elArtistaWrap && elArtistaWrap.closest('a');
 
-    // ── Mostrar nombres inmediatamente ───────────────────────
     if (elTitulo)  elTitulo.textContent   = nombreAlbum;
-    if (elAnio)    elAnio.textContent     = 'Cargando...';
+    if (elAnio)    elAnio.textContent     = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('estado.cargando')) || 'Cargando...';
     if (elBio)     elBio.textContent      = '';
     if (elArtistaNombre) elArtistaNombre.textContent = nombreArtista;
     shimmer(elPanoramica);
     shimmer(elArtistaImg);
 
-    // ── Link al artista ──────────────────────────────────────
     if (elArtistaLink) {
-        elArtistaLink.href = base + 'artista.html?artista=' + encodeURIComponent(nombreArtista);
+        elArtistaLink.href = base + 'artista/?artista=' + encodeURIComponent(nombreArtista);
     }
 
-    // ── Actualizar links de plataformas ──────────────────────
     const query = encodeURIComponent(nombreAlbum + ' ' + nombreArtista);
     const platLinks = {
         'open.spotify.com':  `https://open.spotify.com/search/${query}`,
@@ -60,33 +50,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ── Info del álbum (Last.fm album.getInfo) ───────────────
+    function mostrarBio(el, bioLimpia) {
+        if (!el) return;
+        if (bioLimpia && window.SOULRADE_IDIOMA) {
+            window.SOULRADE_IDIOMA.aplicarBio(el, bioLimpia);
+        } else if (bioLimpia) {
+            el.textContent = bioLimpia;
+        } else {
+            el.textContent = (window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('bio.sin_descripcion')) || 'Sin descripción disponible.';
+        }
+    }
+
     try {
         const info  = await lastfm({ method: 'album.getinfo', album: nombreAlbum, artist: nombreArtista, autocorrect: 1 });
         const album = info && info.album;
         if (album) {
-            // Año desde el wiki o desde tracks
             const wikiRaw = album.wiki && (album.wiki.summary || album.wiki.content) || '';
             const bioText = cleanBio(wikiRaw);
 
-            // Intentar extraer el año del texto o de los datos
             let anio = '';
             if (album.wiki && album.wiki.published) {
                 const match = album.wiki.published.match(/\d{4}/);
                 if (match) anio = match[0];
             }
             if (elAnio)  elAnio.textContent  = anio || '';
-            if (elBio)   elBio.textContent   = bioText || 'Sin descripción disponible.';
+            mostrarBio(elBio, bioText);
         } else {
             if (elAnio) elAnio.textContent = '';
-            if (elBio)  elBio.textContent  = 'Sin descripción disponible.';
+            mostrarBio(elBio, '');
         }
     } catch (e) {
         if (elAnio) elAnio.textContent = '';
-        if (elBio)  elBio.textContent  = 'Sin descripción disponible.';
+        mostrarBio(elBio, '');
     }
 
-    // ── Portada del álbum + foto del artista (en paralelo, URLs distintas) ──
     try {
         const [coverUrl, artistImgs, infoArt] = await Promise.all([
             getAlbumCover(nombreArtista, nombreAlbum),
@@ -94,13 +91,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             getArtistInfo(nombreArtista)
         ]);
 
-        // Panorámica = portada real del álbum
         if (coverUrl && elPanoramica) {
             elPanoramica.src = coverUrl;
             elPanoramica.alt = nombreAlbum;
         }
 
-        // Portrait = foto del artista — si coincide con la portada, buscar via iTunes directo
         let artistUrl = artistImgs && (artistImgs.thumb || artistImgs.fanart);
         if (artistUrl && coverUrl && artistUrl === coverUrl) {
             const iAlt = await getArtistImageItunes(nombreArtista);
@@ -111,28 +106,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             elArtistaImg.alt = nombreArtista;
         }
 
-        // Descripción del artista en el overlay
         if (elArtistaDesc) {
             const artObj = infoArt && infoArt.artist;
             if (artObj) {
                 const tags    = artObj.tags && artObj.tags.tag;
                 const genre   = tags && tags[0] && tags[0].name ? tags[0].name : '';
-                const oyentes = artObj.stats && artObj.stats.listeners ? fmt(artObj.stats.listeners) + ' oyentes' : '';
-                elArtistaDesc.textContent = [genre, oyentes].filter(Boolean).join(' · ') || '';
+                const genreHtml = genre.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const oyentes = artObj.stats && artObj.stats.listeners
+                    ? `${fmt(artObj.stats.listeners)} <span data-i18n="unidad.oyentes">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.oyentes')) || 'oyentes'}</span>`
+                    : '';
+                elArtistaDesc.innerHTML = [genreHtml, oyentes].filter(Boolean).join(' · ') || '';
             }
         }
-    } catch (e) { /* mantener placeholder */ }
+    } catch (e) {}
     unshimmer(elPanoramica);
     unshimmer(elArtistaImg);
 
-    // ── Carrusel: Canciones del álbum ────────────────────────
     const popTrack = document.getElementById('pop-track');
     if (popTrack) {
-        popTrack.innerHTML = '<div class="index-loading">Cargando canciones del álbum...</div>';
+        popTrack.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.canciones_del_album')) || 'Cargando canciones del álbum...'}</div>`;
         try {
             const info2  = await lastfm({ method: 'album.getinfo', album: nombreAlbum, artist: nombreArtista, autocorrect: 1 });
             const tracks = (info2 && info2.album && info2.album.tracks && info2.album.tracks.track) || [];
-            // Last.fm devuelve un objeto si hay 1 sola canción
             const lista  = Array.isArray(tracks) ? tracks : [tracks];
 
             popTrack.innerHTML = '';
@@ -152,12 +147,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="media-titulo">${t.name}</div>
                         <div class="media-artista">${nombreArtista}</div>`;
                     div.addEventListener('click', () => {
-                        window.location.href = base + 'cancion.html?artista=' +
+                        window.location.href = base + 'cancion/?artista=' +
                             encodeURIComponent(nombreArtista) + '&cancion=' + encodeURIComponent(t.name);
                     });
                     popTrack.appendChild(div);
 
-                    // Cargar portada del álbum como thumb de cada canción
                     getAlbumCover(nombreArtista, nombreAlbum)
                         .then(url => url && (div.querySelector('img').src = url))
                         .catch(() => {});
@@ -168,14 +162,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Carrusel: Álbumes similares (otros álbumes del mismo artista) ──
     const albumesTrack = document.getElementById('albumes-track');
     if (albumesTrack) {
-        albumesTrack.innerHTML = '<div class="index-loading">Cargando álbumes similares...</div>';
+        albumesTrack.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.albumes_similares')) || 'Cargando álbumes similares...'}</div>`;
         try {
             const topAlb = await lastfm({ method: 'artist.gettopalbums', artist: nombreArtista, limit: 15, autocorrect: 1 });
             const todos  = (topAlb && topAlb.topalbums && topAlb.topalbums.album) || [];
-            // Excluir el álbum actual
             const otros  = todos.filter(a => a.name && a.name !== '(null)' &&
                 a.name.toLowerCase() !== nombreAlbum.toLowerCase());
 
@@ -195,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="album-rating">${al.playcount ? fmt(al.playcount) + ' plays' : ''}</div>
                         <div class="album-titulo">${al.name}</div>`;
                     div.addEventListener('click', () => {
-                        window.location.href = base + 'album.html?artista=' +
+                        window.location.href = base + 'album/?artista=' +
                             encodeURIComponent(nombreArtista) + '&album=' + encodeURIComponent(al.name);
                     });
                     albumesTrack.appendChild(div);
@@ -210,7 +202,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Carrusel genérico (flechas) ──────────────────────────
     document.querySelectorAll('.carrusel-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const trackId = btn.getAttribute('data-target');

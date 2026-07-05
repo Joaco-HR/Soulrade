@@ -1,22 +1,20 @@
-// ── Ruta dinámica a artista.html ─────────────────────────
-const base = window.location.pathname.includes('/templates/') ? '../templates/' : 'templates/';
+const base = '/';
 
-// ── Helper local: formatear número ──────────────────────
 function fmtNum(n) {
     const num = parseInt(n) || 0;
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return Math.round(num / 1000) + 'K';
     return num.toString();
 }
-// ── Helper: imagen de artista via Spotify ────────────────
+
 async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
     try {
         const imgs = await getArtistImage(nombre);
         if (imgs && imgs.thumb) return imgs.thumb;
-    } catch { /* sigue */ }
+    } catch {}
     return fallback;
 }
-// ── Mosaico: top tracks globales ─────────────────────────
+
 (async() => {
     const PH = 'assets/Mosaico 1.png';
     let mosaicItems = [];
@@ -30,13 +28,12 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
                 titulo: t.name,
                 artista: (t.artist && t.artist.name) || t.artist || '',
                 rating: '#' + (i + 1),
-                link: base + 'cancion.html?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '') + '&cancion=' + encodeURIComponent(t.name)
+                link: base + 'cancion/?artista=' + encodeURIComponent((t.artist && t.artist.name) || t.artist || '') + '&cancion=' + encodeURIComponent(t.name)
             };
         });
     } catch (e) {
         console.warn('Mosaico API error', e);
     }
-    // ── Construir el track de inmediato con placeholders ──
     var track = document.getElementById('mosaico-track');
     mosaicItems.forEach(function(item) {
         var slide = document.createElement('div');
@@ -52,7 +49,6 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             slide.addEventListener('click', function(l) { return function() { window.location.href = l; }; }(item.link));
         track.appendChild(slide);
     });
-    // Cargar imágenes en paralelo, actualizar cada una ni bien llega
     mosaicItems.forEach(function(item, ci) {
         (async function() {
             try {
@@ -62,21 +58,18 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
                     item.img = img;
                     var slides = track.querySelectorAll('.mosaico-slide');
                     if (slides[ci]) slides[ci].querySelector('img').src = img;
-                    // También actualizar miniatura si está visible
                     var caida = document.getElementById('fotos-caida');
                     if (caida) {
                         var minis = caida.querySelectorAll('.mosaico-mini img');
-                        // Las miniaturas muestran items offset+1, offset+2, offset+3
                         for (var mi = 1; mi <= 3; mi++) {
                             var idx = (offset + mi) % mosaicItems.length;
                             if (idx === ci && minis[mi - 1]) minis[mi - 1].src = img;
                         }
                     }
                 }
-            } catch(e) { /* mantener placeholder */ }
+            } catch(e) {}
         })();
     });
-    // ── Indicadores ──
     var indicadores = document.getElementById('mosaico-indicadores');
     mosaicItems.forEach(function(_, i) {
         var dot = document.createElement('button');
@@ -84,7 +77,6 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
         dot.addEventListener('click', function(idx) { return function() { irA(idx); }; }(i));
         indicadores.appendChild(dot);
     });
-    // ── Miniaturas laterales ──
     function renderMiniaturas() {
         var caida = document.getElementById('fotos-caida');
         caida.innerHTML = '';
@@ -105,14 +97,12 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             caida.appendChild(mini);
         }
     }
-    // ── Actualizar dots ──
     function actualizarDots() {
         var dots = indicadores.querySelectorAll('.mosaico-dot');
         dots.forEach(function(d, i) {
             d.className = 'mosaico-dot' + (i === offset ? ' activo' : '');
         });
     }
-    // ── Slide real con translateX ──
     function irA(idx) {
         if (animando || idx === offset) return;
         animando = true;
@@ -132,7 +122,6 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
         clearInterval(autoTimer);
         autoTimer = setInterval(function() { rotar(1); }, 6000);
     }
-    // Render inicial
     renderMiniaturas();
     track.style.transition = 'none';
     track.style.transform = 'translateX(0)';
@@ -140,10 +129,9 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
     document.getElementById('mosaico-prev').addEventListener('click', function() { rotar(-1); });
     reiniciarAuto();
 })();
-// ── Artistas Reconocidos: chart.gettopartists de Last.fm (datos reales) ──
 (async() => {
     const trackEl = document.getElementById('artistas-track');
-    trackEl.innerHTML = '<div class="index-loading">Cargando artistas...</div>';
+    trackEl.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.artistas')) || 'Cargando artistas...'}</div>`;
     let nombres = [];
     try {
         const data = await lastfm({
@@ -157,7 +145,6 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
         }));
     } catch (e) {
         console.warn('chart.gettopartists error', e);
-        // Fallback solo si la API falla completamente
         nombres = [{
             nombre: 'The Weeknd',
             listeners: '0'
@@ -209,20 +196,17 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             <img src="${foto}" alt="${nombre}" class="artista-foto"
                  onerror="this.src='assets/Artista 1.jfif'">
         </div>
-        <div class="artista-rating">${fmtNum(listeners)} oyentes</div>
+        <div class="artista-rating">${fmtNum(listeners)} <span data-i18n="unidad.oyentes">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('unidad.oyentes')) || 'oyentes'}</span></div>
         <div class="artista-nombre">${nombre}</div>`;
         div.addEventListener('click', () =>
-            window.location.href = `${base}artista.html?artista=${encodeURIComponent(nombre)}`);
+            window.location.href = `${base}artista/?artista=${encodeURIComponent(nombre)}`);
         trackEl.appendChild(div);
     });
 })();
-// ── Álbumes Populares: top artistas de Last.fm + su álbum más escuchado ──
-// Usa chart.gettopartists para sacar artistas reales, luego artist.gettopalbums
-// para el álbum más popular de cada uno, y Spotify para la portada
 (async() => {
     const PH = 'assets/Mosaico 1.png';
     const trackEl = document.getElementById('albumes-track');
-    trackEl.innerHTML = '<div class="index-loading">Cargando álbumes...</div>';
+    trackEl.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('carga.albumes')) || 'Cargando álbumes...'}</div>`;
     let albumsData = [];
     try {
         const data = await lastfm({
@@ -249,12 +233,11 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
                         playcount: parseInt(album.playcount) || 0
                     });
                 }
-            } catch (e) { /* skip este artista */ }
+            } catch (e) {}
         }
     } catch (e) {
         console.warn('albumes API error', e);
     }
-    // Fallback si la API falla completamente
     if (albumsData.length === 0) {
         albumsData = [{
             titulo: 'The Weeknd - After Hours',
@@ -309,16 +292,15 @@ async function getImgArtista(nombre, fallback = 'assets/Artista 1.jfif') {
             '<div class="album-rating">' + playcountLabel + '</div>' +
             '<div class="album-titulo">' + item.titulo + '</div>';
         div.addEventListener('click', function() {
-            window.location.href = base + 'album.html?artista=' + encodeURIComponent(item.artista) + '&album=' + encodeURIComponent(item.album);
+            window.location.href = base + 'album/?artista=' + encodeURIComponent(item.artista) + '&album=' + encodeURIComponent(item.album);
         });
         trackEl.appendChild(div);
     });
 })();
-// ── Helper: renderizar track cards con imagen de Spotify ──
 async function cargarTrackCards(trackId, tracks, badgeFn) {
     const el = document.getElementById(trackId);
     if (!el) return;
-    el.innerHTML = '<div class="index-loading">Cargando...</div>';
+    el.innerHTML = `<div class="index-loading">${(window.SOULRADE_IDIOMA && window.SOULRADE_IDIOMA.t('estado.cargando')) || 'Cargando...'}</div>`;
     const enriched = await Promise.all(tracks.map(async(t, i) => {
         const foto = await getImgArtista(t.artista, 'assets/Mosaico 1.png');
         return {...t,
@@ -342,12 +324,11 @@ async function cargarTrackCards(trackId, tracks, badgeFn) {
         <div class="media-titulo">${item.titulo}</div>
         <div class="media-artista">${item.artista}</div>`;
     div.addEventListener('click', () =>
-        window.location.href = `${base}cancion.html?artista=${encodeURIComponent(item.artista)}&cancion=${encodeURIComponent(item.titulo)}`);
+        window.location.href = `${base}cancion/?artista=${encodeURIComponent(item.artista)}&cancion=${encodeURIComponent(item.titulo)}`);
     el.appendChild(div);
 });
 }
  
-// ── Helper: parsear tracks de Last.fm a formato interno ──
 function parseTracks(raw) {
     return (raw || []).map(t => ({
         titulo:  t.name,
@@ -356,8 +337,6 @@ function parseTracks(raw) {
     }));
 }
 
-// ── Canciones Reconocidas Mundialmente ───────────────────
-// chart.gettoptracks: top global acumulado de Last.fm (no es semanal, es histórico)
 (async () => {
     try {
         const d = await lastfm({ method: 'chart.gettoptracks', limit: 10 });
@@ -366,15 +345,11 @@ function parseTracks(raw) {
     } catch (e) { console.warn('canciones-track', e); }
 })();
 
-// ── Iconos del Pop — top artistas del tag 'pop' + su canción más escuchada ──
-// Usando tag.gettopartists que devuelve los artistas MÁS ICÓNICOS del tag
-// (Madonna, Michael Jackson, etc.) en vez de las canciones más tageadas hoy
 (async () => {
     try {
         const d = await lastfm({ method: 'tag.gettopartists', tag: 'pop', limit: 10 });
         const artistas = (d && d.topartists && d.topartists.artist) || [];
 
-        // Por cada artista icónico del pop, buscamos su top track
         const tracks = [];
         for (const a of artistas) {
             try {
@@ -383,7 +358,7 @@ function parseTracks(raw) {
                 if (topTrack) {
                     tracks.push({ titulo: topTrack.name, artista: a.name });
                 }
-            } catch { /* skip */ }
+            } catch {}
             if (tracks.length >= 10) break;
         }
 
@@ -392,9 +367,6 @@ function parseTracks(raw) {
     } catch (e) { console.warn('pop-track', e); }
 })();
 
-// ── Iconos del Rock — top artistas del tag 'classic rock' + su canción más escuchada ──
-// 'classic rock' devuelve Queen, AC/DC, Led Zeppelin, etc.
-// El tag genérico 'rock' en Last.fm tiende a devolver bandas indie/alternativas modernas
 (async () => {
     try {
         const d = await lastfm({ method: 'tag.gettopartists', tag: 'classic rock', limit: 10 });
@@ -408,7 +380,7 @@ function parseTracks(raw) {
                 if (topTrack) {
                     tracks.push({ titulo: topTrack.name, artista: a.name });
                 }
-            } catch { /* skip */ }
+            } catch {}
             if (tracks.length >= 10) break;
         }
 
@@ -417,7 +389,6 @@ function parseTracks(raw) {
     } catch (e) { console.warn('rock-track', e); }
 })();
 
-// ── Iconos del Urbano ─────────────────────────────────────
 (async () => {
     try {
         const d = await lastfm({ method: 'tag.gettoptracks', tag: 'latin', limit: 10 });
@@ -426,7 +397,6 @@ function parseTracks(raw) {
     } catch (e) { console.warn('urbano-track', e); }
 })();
 
-// Carrusel genérico
 document.querySelectorAll('.carrusel-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         var trackId = btn.getAttribute('data-target');

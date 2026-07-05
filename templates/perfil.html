@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Mi perfil | SOULRADE{% endblock %}
+
+{% block content %}
+    <section class="presentacion-artista" style="padding-bottom:0;">
+        <div class="presentacion-nombre">
+            <h1 class="Encabezado"><span data-i18n="saludo.hola">Hola</span>, {{ user.first_name|default:user.email }}</h1>
+            <h2 class="Reproduccion">{{ user.email }}</h2>
+        </div>
+    </section>
+
+    <section class="seccion-perfil">
+        <div class="Encabezado" style="padding-bottom:0.5rem;"><span data-i18n="sec.mis_favoritos">Mis favoritos</span></div>
+        {% if favoritos %}
+        <div class="perfil-lista">
+            {% for fav in favoritos %}
+            {% with obj=fav.content_object %}
+            {% if obj %}
+            <a class="perfil-item" href="{{ obj.get_absolute_url }}">
+                <span class="perfil-item-tipo">{{ obj.tipo_icono }}</span>
+                <span class="perfil-item-titulo">{{ obj.titulo_display }}</span>
+                {% if obj.subtitulo_display %}<span class="perfil-item-artista">{{ obj.subtitulo_display }}</span>{% endif %}
+                <span class="perfil-item-label" data-i18n="tipo.{{ obj.tipo }}">{{ obj.tipo_label }}</span>
+            </a>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="perfil-vacio" data-i18n="perfil.sin_favoritos">Todavía no agregaste nada a favoritos.</p>
+        {% endif %}
+    </section>
+
+    <section class="seccion-perfil">
+        <div class="Encabezado" style="padding-bottom:0.5rem;"><span data-i18n="sec.ultimas_visualizaciones">Últimas visualizaciones</span></div>
+        {% if historial %}
+        <div class="perfil-lista">
+            {% for vis in historial %}
+            {% with obj=vis.content_object %}
+            {% if obj %}
+            <a class="perfil-item" href="{{ obj.get_absolute_url }}">
+                <span class="perfil-item-tipo">{{ obj.tipo_icono }}</span>
+                <span class="perfil-item-titulo">{{ obj.titulo_display }}</span>
+                {% if obj.subtitulo_display %}<span class="perfil-item-artista">{{ obj.subtitulo_display }}</span>{% endif %}
+                <span class="perfil-item-fecha" data-fecha-iso="{{ vis.visto|date:'c' }}">{{ vis.visto|date:"d/m/Y H:i" }}</span>
+            </a>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="perfil-vacio" data-i18n="perfil.sin_visualizaciones">Todavía no visitaste nada.</p>
+        {% endif %}
+    </section>
+
+    <section class="seccion-perfil">
+        <div class="Encabezado" style="padding-bottom:0.5rem;"><span data-i18n="sec.mis_calificaciones">Mis calificaciones</span></div>
+        {% if calificaciones %}
+        <div class="perfil-lista">
+            {% for cal in calificaciones %}
+            {% with obj=cal.objeto %}
+            {% if obj %}
+            <a class="perfil-item" href="{{ obj.get_absolute_url }}">
+                <span class="perfil-item-tipo">{{ obj.tipo_icono }}</span>
+                <span class="perfil-item-titulo">{{ obj.titulo_display }}</span>
+                {% if obj.subtitulo_display %}<span class="perfil-item-artista">{{ obj.subtitulo_display }}</span>{% endif %}
+                <span class="perfil-item-puntaje">{{ cal.puntaje }}/5 💿</span>
+            </a>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="perfil-vacio" data-i18n="perfil.sin_calificaciones">Todavía no calificaste ninguna canción ni álbum.</p>
+        {% endif %}
+    </section>
+{% endblock %}
