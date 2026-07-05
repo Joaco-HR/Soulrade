@@ -1,4 +1,4 @@
-# SoulRade - IMDb de Música
+# SoulRade - IMDB de Música
 La página es una versión de la famosa página IMDb, pero enfocada en artistas, canciones y álbumes en lugar de actores, películas y series.
 
 ## Antes de ejecutar la página
